@@ -32,6 +32,8 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 console.log('cor options',corsOptions)
 
 // Static files for uploads
