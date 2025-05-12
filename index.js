@@ -32,6 +32,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+console.log('cor options',corsOptions)
 
 // Static files for uploads
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
