@@ -7,7 +7,8 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { Product } from "../models/product.model.js";
 import sendEmail from "../utils/sentEmail.js";
-
+import dotenv from "dotenv";
+dotenv.config();
 export const signUp = async (req, res) => {
     try {
       const { name, phoneNumber, email, password } = req.body;
@@ -278,15 +279,18 @@ export const signUp = async (req, res) => {
         process.env.JWT_SECRET,
         { expiresIn: "24h" } // Token expiration time
       );
+
+      console.log('login token',token)
   
       // Send the token in an HTTP-only cookie
       // When setting cookies (login/signup routes)
       res.cookie('token', token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // ✅ Only over HTTPS
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ 'none' allows cross-site
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      }).status(200).json({ success: true });
+      
       
   
       // Send success response with user data (excluding password)
