@@ -283,12 +283,11 @@ export const signUp = async (req, res) => {
       // When setting cookies (login/signup routes)
       res.cookie('token', token, {
         httpOnly: true,
-        secure: true, // FORCE true for Render
-        sameSite: 'none', // FORCE none for cross-origin
-        domain: '.onrender.com', // Critical for Render
-        path: '/', // Ensure cookie is sent to all paths
+        secure: process.env.NODE_ENV === 'production', // ✅ Only over HTTPS
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // ✅ 'none' allows cross-site
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
+      
   
       // Send success response with user data (excluding password)
       const { password: _, ...userWithoutPassword } = user.toObject();
