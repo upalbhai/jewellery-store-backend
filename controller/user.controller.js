@@ -280,12 +280,13 @@ export const signUp = async (req, res) => {
       );
   
       // Send the token in an HTTP-only cookie
-      res.cookie("token", token, {
-        httpOnly: true, // Prevent client-side JS access
-        sameSite: "strict", // Protect against CSRF
-        // secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-        maxAge: 24 * 60 * 60 * 1000 , // 24 hours
-      });
+      // When setting cookies (login/signup routes)
+res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production', // true on Render
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+});
   
       // Send success response with user data (excluding password)
       const { password: _, ...userWithoutPassword } = user.toObject();
