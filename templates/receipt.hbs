@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Receipt</title>
+  <style>
+    /* Same Tailwind-style CSS from your existing HTML */
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background-color: #f4f9f9;
+      padding: 0;
+      margin: 0;
+    }
+    .receipt-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    .header {
+      background-color: #1a2c2e;
+      color: #f4f9f9;
+      padding: 30px 40px;
+      border-radius: 8px 8px 0 0;
+    }
+    .company-name { font-size: 24px; font-weight: bold; }
+    .receipt-title { font-size: 18px; margin-top: 5px; }
+    .section { background: #fff; margin-top: 20px; padding: 20px; border-radius: 6px; }
+    .info-row { display: flex; margin-bottom: 8px; }
+    .info-label { width: 150px; font-weight: 600; color: #325153; }
+    .info-value { flex: 1; }
+    .product-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .product-table th, .product-table td {
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+    .text-right { text-align: right; }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 40px;
+      color: #659c9c;
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-container">
+    <div class="header">
+      <div class="company-name">Madhusudhan Ratnam</div>
+      <div class="receipt-title">Payment Receipt</div>
+    </div>
+
+    <div class="section">
+      <div class="info-row"><div class="info-label">Order ID:</div><div class="info-value">{{_id}}</div></div>
+      <div class="info-row"><div class="info-label">Payment ID:</div><div class="info-value">{{razorpayDetails.paymentId}}</div></div>
+      <div class="info-row"><div class="info-label">Payment Method:</div><div class="info-value">{{paymentMethod}}</div></div>
+      <div class="info-row"><div class="info-label">Order Status:</div><div class="info-value">{{status}}</div></div>
+      <div class="info-row"><div class="info-label">Order Date:</div><div class="info-value">{{createdAt}}</div></div>
+    </div>
+
+    <div class="section">
+      <div class="info-row"><div class="info-label">Customer Name:</div><div class="info-value">{{userId.name}}</div></div>
+      <div class="info-row"><div class="info-label">Email:</div><div class="info-value">{{userId.email}}</div></div>
+      <div class="info-row"><div class="info-label">Phone:</div><div class="info-value">{{userId.phoneNumber}}</div></div>
+    </div>
+
+    <div class="section">
+      <div class="info-row"><div class="info-label">Delivery Address:</div><div class="info-value">
+        {{deliveryAddress.line}}<br/>
+        {{#if deliveryAddress.line2}}{{deliveryAddress.line2}}<br/>{{/if}}
+        {{deliveryAddress.city}}, {{deliveryAddress.state}} - {{deliveryAddress.zipCode}}
+      </div></div>
+    </div>
+
+    <div class="section">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each products}}
+            <tr>
+              <td>{{productId.name}}</td>
+              <td>{{productId.category}}</td>
+              <td class="text-right">{{quantity}}</td>
+              <td class="text-right">₹{{productId.price}}</td>
+              <td class="text-right">₹{{multiply productId.price quantity}}</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="text-right" style="margin-top: 10px; font-weight: 600;">
+        Total: ₹{{totalAmount}}
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for your purchase!</p>
+      <p>Contact: ankityogeshpatel@gmail.com</p>
+      <p>© {{year}} Madhusudhan Ratnam</p>
+    </div>
+  </div>
+</body>
+</html>
