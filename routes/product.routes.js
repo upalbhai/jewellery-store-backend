@@ -7,8 +7,8 @@ import { productImageUpload } from "../utils/multer.js";
 const router = express.Router();
 
 router.post('/',authMiddleware,adminMiddleware,productImageUpload,createProduct);
-router.delete('/',authMiddleware,adminMiddleware,deleteProduct);
 router.put('/',authMiddleware,adminMiddleware,productImageUpload,updateProduct);
+router.delete('/',authMiddleware,adminMiddleware,deleteProduct);
 router.post('/discount/add',authMiddleware,adminMiddleware,addProductDiscount)
 router.post('/discount/remove',authMiddleware,adminMiddleware,removeProductDiscount)
 router.get('/search',searchProducts)

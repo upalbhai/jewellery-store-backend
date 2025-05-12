@@ -21,13 +21,13 @@ const ProductSchema = new Schema({
         trim: true,
     },
     images: [{
-        type: String,
-        required: [true, 'Product image is required'],
-    }],
-    clodinaryImages: [{
-        type: String,
-        required: [true, 'Product image is required'],
-    }],
+        type: String, // local image filenames (optional now)
+        // no 'required' here
+      }],
+      clodinaryImages: [{
+        type: String, // Cloudinary URLs (optional now)
+        // no 'required' here
+      }],
     description: {
         type: String,
         required: [true, 'Product description is required'],

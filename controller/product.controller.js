@@ -1,162 +1,176 @@
 import { Product } from "../models/product.model.js";
 import { Report } from "../models/report.model.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { sendResponse } from "../utils/sendResponse.js";
 
-
+import fs from 'fs';
 export const createProduct = async (req, res) => {
-    try {
-      const { name, category, description, price, subCategory, isAvailable, stockQuantity } = req.body;
-      const {id} = req.user; // Authenticated user IDs
-      // Ensure files are present (at least one image)
-      if (!req?.files || req?.files?.images?.length === 0) {
-        return sendResponse(res, 400, {
-          meta: {
-            message: "At least one image is required",
-            success: false
-          }
-        });
-      }
-  
-      // Upload images to Cloudinary
-      // const imageUrls = await Promise.all(req.files.images.map(async (file) => {
-      //   try {
-      //     return await uploadToCloudinary(file.path);
-      //   } catch (error) {
-      //     console.error('Cloudinary upload failed:', error);
-      //     throw new Error('Image upload failed');
-      //   }
-      // }));
-      const imagePaths = req.files.images.map(file => file.path);
-  
-      // Create and save the product with the uploaded image URLs
-      const product = new Product({
-        name,
-        category,
-        subCategory,
-        description,
-        price,
-        images: imagePaths,  // Store Cloudinary URLs
-        isAvailable: isAvailable !== undefined ? isAvailable : true,
-        stockQuantity: stockQuantity !== undefined ? stockQuantity : 0,
-      });
-  
-      await product.save();
-  
-      // Send success response
-      return sendResponse(res, 201, {
-        meta: {
-          message: "Product created successfully",
-          success: true
-        },
-        data: product
-      });
-  
-    } catch (error) {
-      console.error('Error:', error);
-      return sendResponse(res, 500, {
-        meta: {
-          message: "An error occurred while creating the product",
-          success: false
-        },
-        error: error.message
-      });
-    }
-  };
-
-  export const updateProduct = async (req, res) => {
-    try {
-      const {
-        name,
-        category,
-        subCategory,
-        description,
-        price,
-        stockQuantity,
-        isAvailable,
-        deletedImages,
-        _id,
-      } = req.body;
-  
-      // Find the product by ID
-      const product = await Product.findById(_id);
-      if (!product) {
-        return sendResponse(res, 404, {
-          meta: { message: "Product Not Found", success: false },
-        });
-      }
-  
-      // Update fields
-      product.name = name || product.name;
-      product.category = category || product.category;
-      product.subCategory = subCategory || product.subCategory;
-      product.description = description || product.description;
-      product.price = price || product.price;
-      product.stockQuantity = stockQuantity || product.stockQuantity;
-      product.isAvailable =
-        isAvailable !== undefined ? isAvailable : product.isAvailable;
-  
-      // Handle image deletions
-      let imagesToDelete = [];
-
-if (deletedImages) {
   try {
-    // If deletedImages is already an array (from frontend), use it
-    if (Array.isArray(deletedImages)) {
-      imagesToDelete = deletedImages;
-    }
-    // If it's a string that looks like an array (e.g., '["img1", "img2"]')
-    else if (deletedImages.startsWith("[") && deletedImages.endsWith("]")) {
-      imagesToDelete = JSON.parse(deletedImages);
-    }
-    // If it's a plain string (single image path), convert to array
-    else {
-      imagesToDelete = [deletedImages];
-    }
+    const {
+      name,
+      category,
+      description,
+      price,
+      subCategory,
+      isAvailable,
+      stockQuantity
+    } = req.body;
 
-    // Remove deleted images from product
-    product.images = product.images.filter(
-      (img) => !imagesToDelete.includes(img)
-    );
+    const { id } = req.user;
 
-    // Delete files from file system
-    for (const imagePath of imagesToDelete) {
-      try {
-        fs.unlinkSync(imagePath);
-      } catch (err) {
-        console.error(`Failed to delete image: ${imagePath}`, err);
-      }
-    }
-  } catch (err) {
-    return sendResponse(res, 400, {
-      meta: { message: "Invalid format for deletedImages", success: false },
-    });
-  }
-}
-  
-      // Handle new image uploads
-      if (req.files && req.files.images) {
-        const newImagePaths = req.files.images.map((file) => file.path);
-        product.images = [...product.images, ...newImagePaths]; // Append new images
-      }
-  
-      // Save updated product
-      await product.save();
-  
-      return sendResponse(res, 200, {
-        meta: { message: "Product updated successfully", success: true },
-        data: product,
-      });
-    } catch (error) {
-      console.error("Error updating product:", error);
-      return sendResponse(res, 500, {
+    if (!req?.files || req?.files?.images?.length === 0) {
+      return sendResponse(res, 400, {
         meta: {
-          message: "An error occurred while updating the product",
+          message: "At least one image is required",
           success: false,
         },
-        error: error.message,
       });
     }
-  };
+
+    // Get local image paths from multer
+    const imagePaths = req.files.images.map(file => file.path);
+
+    // Upload to Cloudinary and store returned URLs
+    const cloudinaryUploads = await Promise.all(
+      imagePaths.map(async (filePath) => {
+        const result = await uploadToCloudinary(filePath);
+        return result.secure_url;
+      })
+    );
+
+    // Create and save product
+    const product = new Product({
+      name,
+      category,
+      subCategory,
+      description,
+      price,
+      images: imagePaths,                 // local paths
+      clodinaryImages: cloudinaryUploads, // Cloudinary URLs
+      isAvailable: isAvailable !== undefined ? isAvailable : true,
+      stockQuantity: stockQuantity !== undefined ? stockQuantity : 0,
+    });
+
+    await product.save();
+
+    return sendResponse(res, 201, {
+      meta: {
+        message: "Product created successfully",
+        success: true,
+      },
+      data: product,
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return sendResponse(res, 500, {
+      meta: {
+        message: "An error occurred while creating the product",
+        success: false,
+      },
+      error: error.message,
+    });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const {
+      name,
+      category,
+      subCategory,
+      description,
+      price,
+      stockQuantity,
+      isAvailable,
+      deletedImages,
+      _id,
+    } = req.body;
+
+    const product = await Product.findById(_id);
+    if (!product) {
+      return sendResponse(res, 404, {
+        meta: { message: "Product Not Found", success: false },
+      });
+    }
+
+    // Update fields
+    product.name = name || product.name;
+    product.category = category || product.category;
+    product.subCategory = subCategory || product.subCategory;
+    product.description = description || product.description;
+    product.price = price || product.price;
+    product.stockQuantity = stockQuantity || product.stockQuantity;
+    product.isAvailable =
+      isAvailable !== undefined ? isAvailable : product.isAvailable;
+
+    // Handle local image deletions
+    let imagesToDelete = [];
+
+    if (deletedImages) {
+      try {
+        if (Array.isArray(deletedImages)) {
+          imagesToDelete = deletedImages;
+        } else if (deletedImages.startsWith("[") && deletedImages.endsWith("]")) {
+          imagesToDelete = JSON.parse(deletedImages);
+        } else {
+          imagesToDelete = [deletedImages];
+        }
+
+        product.images = product.images.filter(
+          (img) => !imagesToDelete.includes(img)
+        );
+
+        for (const imagePath of imagesToDelete) {
+          try {
+            fs.unlinkSync(imagePath);
+          } catch (err) {
+            console.error(`Failed to delete image: ${imagePath}`, err);
+          }
+        }
+      } catch (err) {
+        return sendResponse(res, 400, {
+          meta: { message: "Invalid format for deletedImages", success: false },
+        });
+      }
+    }
+
+    // Handle new image uploads (both local and Cloudinary)
+    if (req.files && req.files.images) {
+      const newImagePaths = req.files.images.map((file) => file.path);
+      product.images.push(...newImagePaths);
+
+      // Upload new images to Cloudinary
+      const cloudinaryUrls = await Promise.all(
+        newImagePaths.map(async (filePath) => {
+          const result = await uploadToCloudinary(filePath);
+          return result.secure_url;
+        })
+      );
+
+      if (!product.clodinaryImages) {
+        product.clodinaryImages = [];
+      }
+      product.clodinaryImages.push(...cloudinaryUrls);
+    }
+
+    await product.save();
+
+    return sendResponse(res, 200, {
+      meta: { message: "Product updated successfully", success: true },
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return sendResponse(res, 500, {
+      meta: {
+        message: "An error occurred while updating the product",
+        success: false,
+      },
+      error: error.message,
+    });
+  }
+};
 
 
   export const deleteProduct = async (req, res) => {
