@@ -11,7 +11,7 @@ import dotenv from "dotenv";
 dotenv.config();
 export const signUp = async (req, res) => {
     try {
-      const { name, phoneNumber, email, password } = req.body;
+      const { name, phoneNumber, email, password,address } = req.body;
   
       // Check if email already exists
       const userEmail = await User.findOne({ email });
@@ -38,6 +38,7 @@ export const signUp = async (req, res) => {
         name,
         phoneNumber,
         email,
+        address,
         password: hashedPassword, // Store hashed password
         isVerified: false, // Initially set as not verified
         emailVerificationCode: verificationCode,

@@ -88,6 +88,14 @@ export const productOrder = async (req, res) => {
         tempOrder: "true" // Mark as temporary
       }
     });
+    if(!user.address){
+      return sendResponse(res,400,{
+        meta:{
+          message:'Please Add Your Address in Profile Section',
+          success:false
+        }
+      })
+    }
 
     // Return payment details WITHOUT creating DB order
     return sendResponse(res, 200, {
