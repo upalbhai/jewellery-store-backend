@@ -23,7 +23,7 @@ export const sendEmailsToCustomers = async (req, res) => {
             description: product.description,
             price: product.price,
             image: `${process.env.BACKEND_URL}${product.images[0]}`, // Send first image
-            link: `${process.env.FRONTEND_URL}/product/${product._id}`,
+            link: `${process.env.HOSTER_FRONTEND_URL}/product/${product._id}`,
         }));
 
         // Send emails

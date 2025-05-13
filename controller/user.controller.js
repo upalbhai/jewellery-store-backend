@@ -61,10 +61,34 @@ export const signUp = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Email Verification",
-        html: `<p>Hello ${name},</p>
-               <p>Please verify your email by entering the following code:</p>
-               <h2>${verificationCode}</h2>
-               <p>The code will expire in 1 hour.</p>`,
+        html: `<div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #f4f9f9; border-radius: 8px; border: 1px solid #dcebea;">
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h1 style="color: #1a2c2e; font-size: 24px; font-weight: 600;">Email Verification</h1>
+  </div>
+  
+  <div style="background-color: #f9f6f3; padding: 25px; border-radius: 6px; border-left: 4px solid #3a6567; margin-bottom: 25px;">
+    <p style="color: #1a2c2e; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+      Hello <span style="font-weight: 600;">${name}</span>,
+    </p>
+    <p style="color: #1a2c2e; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      Please verify your email by entering the following code:
+    </p>
+    
+    <div style="background-color: #dcebea; padding: 15px; border-radius: 4px; text-align: center; margin: 20px 0;">
+      <h2 style="color: #2b4244; font-size: 28px; font-weight: 700; letter-spacing: 2px; margin: 0;">
+        ${verificationCode}
+      </h2>
+    </div>
+    
+    <p style="color: #6f4b3d; font-size: 14px; text-align: center; font-style: italic;">
+      The code will expire in 1 hour.
+    </p>
+  </div>
+  
+  <div style="text-align: center; color: #4b8081; font-size: 14px; padding-top: 20px; border-top: 1px solid #dcebea;">
+    <p style="margin: 0;">If you didn't request this code, please ignore this email.</p>
+  </div>
+</div>`,
       };
   
       await transporter.sendMail(mailOptions);
@@ -198,10 +222,30 @@ export const signUp = async (req, res) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: "Resend Email Verification Code",
-        html: `<p>Hello ${user.name},</p>
-               <p>We received a request to resend the email verification code. Please use the following code to verify your email:</p>
-               <h2>${verificationCode}</h2>
-               <p>The code will expire in 1 hour.</p>`,
+        html: `<div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #f4f9f9; border-radius: 8px; border: 1px solid #dcebea; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h1 style="color: #1a2c2e; font-size: 24px; font-weight: 600; letter-spacing: 0.5px;">Verification Code Resent</h1>
+  </div>
+  
+  <div style="background-color: #f9f6f3; padding: 25px; border-radius: 6px; border-left: 4px solid #b2845d; margin-bottom: 25px;">
+    <p style="color: #1a2c2e; font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+      Hello <span style="font-weight: 600; color: #2b4244;">${user.name}</span>,
+    </p>
+    <p style="color: #1a2c2e; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      We received a request to resend the email verification code. Please use the following code to verify your email:
+    </p>
+    
+    <div style="background-color: #f2ece2; padding: 18px; border-radius: 6px; text-align: center; margin: 25px 0; border: 1px dashed #3a6567;">
+      <h2 style="color: #2b4244; font-size: 32px; font-weight: 700; letter-spacing: 3px; margin: 0; font-family: monospace;">
+        ${verificationCode}
+      </h2>
+    </div>
+    
+    <div style="background-color: #dcebea; padding: 12px; border-radius: 4px; text-align: center;">
+      <p style="color: #6f4b3d; font-size: 14px; margin: 0; font-weight: 500;">
+        ⏳ The code will expire in <span style="font-weight: 600;">1 hour</span>
+      </p>
+    </div`,
       };
   
       await transporter.sendMail(mailOptions);
@@ -876,10 +920,35 @@ export const signUp = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 1000 * 60 * 15; // 15 mins
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+    const resetLink = `${process.env.HOSTER_FRONTEND_URL}/reset-password/${resetToken}`;
     await sendEmail(user.email, 'Reset Your Password', `
-      <p>You requested a password reset.</p>
-      <p>Click <a href="${resetLink}">here</a> to reset your password.</p>
+      <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #f4f9f9; border-radius: 8px; border: 1px solid #dcebea; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  <div style="text-align: center; margin-bottom: 25px;">
+    <h1 style="color: #1a2c2e; font-size: 24px; font-weight: 600; margin-bottom: 10px;">🔒 Password Reset Request</h1>
+    <div style="height: 3px; width: 60px; background: linear-gradient(to right, #b2845d, #3a6567); margin: 0 auto;"></div>
+  </div>
+  
+  <div style="background-color: #f9f6f3; padding: 25px; border-radius: 6px; margin-bottom: 25px; border-left: 4px solid #3a6567;">
+    <p style="color: #1a2c2e; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+      You requested a password reset. Click the button below to create a new password:
+    </p>
+    
+    <div style="text-align: center; margin: 25px 0;">
+      <a href="${resetLink}" style="display: inline-block; padding: 12px 30px; background-color: #3a6567; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; letter-spacing: 0.5px; transition: all 0.3s ease;">
+        Reset Password
+      </a>
+    </div>
+    
+    <p style="color: #6f4b3d; font-size: 14px; text-align: center; font-style: italic; margin-bottom: 0;">
+      This link will expire in 24 hours for security reasons.
+    </p>
+  </div>
+  
+  <div style="text-align: center; color: #4b8081; font-size: 14px; padding-top: 20px; border-top: 1px solid #dcebea;">
+    <p style="margin: 0 0 10px 0;">If you didn't request this password reset, please ignore this email.</p>
+    <p style="margin: 0; font-size: 13px;">For security, don't share this email with anyone.</p>
+  </div>
+</div>
     `);
     sendResponse(res,200,{
       meta:{
@@ -965,11 +1034,40 @@ export const signUp = async (req, res) => {
         to: process.env.EMAIL_USER || process.env.EMAIL_USER,
         subject: 'New Contact Us Message',
         html: `
-          <h2>New Contact Request</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Message:</strong><br>${message}</p>
+          <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; background-color: #f4f9f9; border-radius: 8px; border: 1px solid #dcebea; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+  <div style="text-align: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #dcebea;">
+    <h1 style="color: #1a2c2e; font-size: 22px; font-weight: 600; letter-spacing: 0.5px; margin: 0;">
+      ✨ New Contact Request
+    </h1>
+    <p style="color: #4b8081; font-size: 14px; margin-top: 8px;">From your website contact form</p>
+  </div>
+  
+  <div style="background-color: #f9f6f3; padding: 25px; border-radius: 6px; margin-bottom: 20px;">
+    <div style="margin-bottom: 15px;">
+      <p style="color: #1a2c2e; font-size: 15px; margin: 0 0 5px 0;">
+        <span style="display: inline-block; width: 80px; color: #6f4b3d; font-weight: 500;">Name:</span>
+        <span style="color: #2b4244; font-weight: 500;">${name}</span>
+      </p>
+      <p style="color: #1a2c2e; font-size: 15px; margin: 0 0 5px 0;">
+        <span style="display: inline-block; width: 80px; color: #6f4b3d; font-weight: 500;">Email:</span>
+        <a href="mailto:${email}" style="color: #3a6567; text-decoration: none; font-weight: 500;">${email}</a>
+      </p>
+      <p style="color: #1a2c2e; font-size: 15px; margin: 0 0 5px 0;">
+        <span style="display: inline-block; width: 80px; color: #6f4b3d; font-weight: 500;">Phone:</span>
+        <span style="color: #2b4244; font-weight: 500;">${phone}</span>
+      </p>
+    </div>
+    
+    <div style="background-color: #f2ece2; padding: 15px; border-radius: 4px; border-left: 3px solid #b2845d;">
+      <p style="color: #6f4b3d; font-size: 14px; font-weight: 500; margin: 0 0 8px 0;">Message:</p>
+      <p style="color: #1a2c2e; font-size: 15px; line-height: 1.5; margin: 0; white-space: pre-wrap;">${message}</p>
+    </div>
+  </div>
+  
+  <div style="text-align: center; color: #4b8081; font-size: 13px; padding-top: 20px; border-top: 1px solid #dcebea;">
+    <p style="margin: 0;">This message was sent via your website contact form on ${new Date().toLocaleDateString()}</p>
+  </div>
+</div>
         `,
       };
   
