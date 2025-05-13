@@ -141,16 +141,16 @@ export const updateProduct = async (req, res) => {
       product.images.push(...newImagePaths);
 
       // Upload new images to Cloudinary
-      const cloudinaryUrls = await Promise.all(
-        newImagePaths.map(async (filePath) => {
-          const result = await uploadToCloudinary(filePath);
-          return result.secure_url;
-        })
-      );
+      // const cloudinaryUrls = await Promise.all(
+      //   newImagePaths.map(async (filePath) => {
+      //     const result = await uploadToCloudinary(filePath);
+      //     return result.secure_url;
+      //   })
+      // );
 
-      if (!product.clodinaryImages) {
-        product.clodinaryImages = [];
-      }
+      // if (!product.clodinaryImages) {
+      //   product.clodinaryImages = [];
+      // }
       product.clodinaryImages.push(...cloudinaryUrls);
     }
 
@@ -321,8 +321,6 @@ export const updateProduct = async (req, res) => {
       });
     }
   };
-
-  
 
   export const getCategories = async (req, res) => {
     try {
@@ -503,14 +501,18 @@ export const updateProduct = async (req, res) => {
 
   export const getFeaturedProductsByCategory = async (req, res) => {
     try {
-      // Step 1: Get all unique categories
-      const categories = await Product.distinct('category');
+      // Step 1: Get 3 distinct categories from the products collection
+      const categories = await Product.aggregate([
+        { $group: { _id: "$category" } },
+        { $sort: { _id: 1 } }, // Optional: sort alphabetically or by some logic
+        { $limit: 3 }
+      ]);
   
       const result = {};
   
-      // Step 2: For each category, fetch up to 5 products
+      // Step 2: For each of the 3 categories, fetch up to 5 latest products
       await Promise.all(
-        categories.map(async (category) => {
+        categories.map(async ({ _id: category }) => {
           const products = await Product.find({ category })
             .sort({ createdAt: -1 }) // latest first
             .limit(5);
@@ -521,7 +523,7 @@ export const updateProduct = async (req, res) => {
   
       return sendResponse(res, 200, {
         meta: {
-          message: 'Fetched up to 5 products per category',
+          message: 'Fetched up to 5 products for 3 categories',
           success: true,
         },
         data: result,
@@ -536,3 +538,4 @@ export const updateProduct = async (req, res) => {
       });
     }
   };
+  

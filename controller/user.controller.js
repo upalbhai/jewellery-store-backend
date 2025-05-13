@@ -641,7 +641,7 @@ export const signUp = async (req, res) => {
     try {
       const user = await User.findById(id).populate({
         path: "cart.productId",
-        select: "name price category subCategory images",
+        select: "name price discount category subCategory images",
       });
   
       if (!user) {
