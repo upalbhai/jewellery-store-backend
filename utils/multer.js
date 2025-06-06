@@ -3,8 +3,16 @@ import path from 'path';
 import fs from 'fs';
 
 // Define upload path
-const uploadPath = path.join('uploads', 'Product');
 
+const ensureDirectoryExistence = (dir) => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+const uploadPath = path.join('uploads', 'Product');
+// Admin Upload Path
+const adminUploadPath = path.join('uploads', 'Admin');
+ensureDirectoryExistence(adminUploadPath);
 // Create folder dynamically if it doesn't exist
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
@@ -37,4 +45,22 @@ export const productImageUpload = multer({
 }).fields([
   { name: 'images', maxCount: 10 },
   { name: 'newImages', maxCount: 10 },
+]);
+
+const adminStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, adminUploadPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+
+export const adminImageUpload = multer({
+  storage: adminStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter,
+}).fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'mo_logo', maxCount: 1 },
 ]);
