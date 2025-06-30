@@ -21,9 +21,11 @@ export const generateReceipt = async (order) => {
 
   const html = template(orderData);
   const browser = await puppeteer.launch({
-    headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  });
+  headless: "new",
+  executablePath: "/usr/bin/chromium", // Installed by our script
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+});
+
 
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
