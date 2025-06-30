@@ -1,43 +1,50 @@
-import fs from 'fs/promises';
-import path from 'path';
-import handlebars from 'handlebars';
-import puppeteer from 'puppeteer';
+import path from "path";
+import fs from "fs/promises";  // you want promises here, not callbacks
+import handlebars from "handlebars";
+import puppeteer from "puppeteer";
+import { AdminSettings } from "../models/adminSettings.model.js";
 
-// Custom helper for math in Handlebars
-handlebars.registerHelper('multiply', (a, b) => (a * b).toFixed(2));
-handlebars.registerHelper('year', () => new Date().getFullYear());
+// register handlebars helpers
+handlebars.registerHelper("multiply", (a, b) => (a * b).toFixed(2));
+handlebars.registerHelper("year", () => new Date().getFullYear());
 
 export const generateReceipt = async (order) => {
-  const templatePath = path.join(process.cwd(), 'templates', 'receipt.hbs');
-  const templateHtml = await fs.readFile(templatePath, 'utf-8');
+  // fetch dynamic company name
+  const settings = await AdminSettings.findOne();
+
+  const companyName = settings?.name || "yyy";
+  const adminEmail = settings?.adminEmail || "yyy";
+
+  const templatePath = path.join(process.cwd(), "templates", "receipt.hbs");
+  const templateHtml = await fs.readFile(templatePath, "utf-8");
 
   const template = handlebars.compile(templateHtml);
-  
-  // Convert dates to readable format
+
   const orderData = {
     ...order.toObject(),
     createdAt: new Date(order.createdAt).toLocaleString(),
+    companyName,adminEmail
   };
-
+  // console.log('orderData',orderData)
   const html = template(orderData);
+
   const browser = await puppeteer.launch({
-  headless: "new",
-  executablePath: "/usr/bin/chromium", // Installed by our script
-  args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  headless: "new", // or true
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
 });
 
 
+
   const page = await browser.newPage();
-  await page.setContent(html, { waitUntil: 'networkidle0' });
+  await page.setContent(html, { waitUntil: "networkidle0" });
 
   const pdfBuffer = await page.pdf({
-    format: 'A4',
+    format: "A4",
     printBackground: true,
-    margin: { top: '0mm', right: '0mm', bottom: '0mm', left: '0mm' },
+    margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
   });
 
-  await fs.writeFile('test-output.pdf', pdfBuffer);
-
+  await fs.writeFile("test-output.pdf", pdfBuffer);
 
   await browser.close();
   return pdfBuffer;

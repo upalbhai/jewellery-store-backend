@@ -10,6 +10,7 @@ export const getAdminSettings = async (req, res) => {
         aboutus: '',
         adminEmail: '',
         contactNumber: '',
+        shopAddress: '',
         logo: '',
         mo_logo: '',
         name:'',
@@ -36,6 +37,7 @@ export const updateAdminSettings = async (req, res) => {
       aboutus,
       adminEmail,
       contactNumber,
+      shopAddress,
       name,
       socialmedialink,
     } = req.body;
@@ -44,6 +46,7 @@ export const updateAdminSettings = async (req, res) => {
     if (adminEmail) settings.adminEmail = adminEmail;
     if (name) settings.name = name;
     if (contactNumber) settings.contactNumber = contactNumber;
+    if (shopAddress) settings.shopAddress = shopAddress;
     if (Array.isArray(socialmedialink)) settings.socialmedialink = socialmedialink;
     else if (typeof socialmedialink === 'string') {
       // Handle comma-separated string input from form-data

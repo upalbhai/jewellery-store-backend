@@ -151,7 +151,7 @@ export const updateProduct = async (req, res) => {
       // if (!product.clodinaryImages) {
       //   product.clodinaryImages = [];
       // }
-      product.clodinaryImages.push(...cloudinaryUrls);
+      // product.clodinaryImages.push(...cloudinaryUrls);
     }
 
     await product.save();

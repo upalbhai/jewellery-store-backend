@@ -5,7 +5,6 @@ import { sendResponse } from "../utils/sendResponse.js";
 export const authMiddleware = (req, res, next) => {
     try {
       const token = req.cookies?.token;
-      console.log('toen',token)
       if (!token) {
         return sendResponse(res, 401, {
           error: {

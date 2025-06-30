@@ -5,6 +5,10 @@ const adminSettingsSchema = new Schema({
     type: String,
     // required: false,
   },
+  shopAddress: {
+    type: String,
+    // required: false,
+  },
   adminEmail: {
     type: String,
     // required: true,

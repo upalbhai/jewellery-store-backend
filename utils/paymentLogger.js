@@ -13,7 +13,7 @@ const paymentLogger = createLogger({
 });
 
 export const logPaymentEvent = (eventType, data) => {
-    console.log('data',data)
+    // console.log('data',data)
   paymentLogger.log({
     level: 'info',
     eventType,

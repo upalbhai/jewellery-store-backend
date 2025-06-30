@@ -5,7 +5,7 @@ dotenv.config();
 
 export const generateOrderConfirmationEmail = (savedOrder) => {
   const imagePath = savedOrder.products[0].productId.images?.[0]?.replace(/\\/g, '/');
-  console.log(`${process.env.BACKEND_URL}/${imagePath}`);
+  // console.log(`${process.env.BACKEND_URL}/${imagePath}`);
     return `
     <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f9f9; color: #1a2c2e;">
       <!-- Header -->

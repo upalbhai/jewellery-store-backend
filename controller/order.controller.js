@@ -152,7 +152,7 @@ export const verifyPayment = async (req, res) => {
     });
 
     const savedOrder = await newOrder.save();
-    console.log('save order',savedOrder)
+    // console.log('save order',savedOrder)
     // Update user's orders
     await User.findByIdAndUpdate(
       orderData.userId,

@@ -325,7 +325,7 @@ export const signUp = async (req, res) => {
         { expiresIn: "24h" } // Token expiration time
       );
 
-      console.log('login token',token)
+      // console.log('login token',token)
   
       // Send the token in an HTTP-only cookie
       // When setting cookies (login/signup routes)
