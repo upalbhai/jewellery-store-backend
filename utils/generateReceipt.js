@@ -19,6 +19,7 @@ export const generateReceipt = async (order) => {
   const templateHtml = await fs.readFile(templatePath, "utf-8");
 
   const template = handlebars.compile(templateHtml);
+console.log('Using Puppeteer executable at:', puppeteer.executablePath());
 
   const orderData = {
     ...order.toObject(),
